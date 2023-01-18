@@ -39,7 +39,7 @@ jobs:
             build/ImPlay-*.msi
             build/ImPlay-*.zip
   publish:
-    needs: [linux, macos, win]
+    needs: [win]
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }}
     steps:
