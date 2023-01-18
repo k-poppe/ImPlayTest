@@ -133,7 +133,7 @@ if(WIN32)
     install(FILES ${MPV_BIN_DIR}/mpv.com DESTINATION . RENAME ImPlay.com)
     install(FILES ${YT_DLP_BIN} DESTINATION .)
     if(USE_MPV_WIN_BUILD)
-        add_dependencies(${PROJECT_NAME} mpv_dev)
+        add_dependencies(${PROJECT_NAME} mpv_bin)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${MPV_DEV_DIR}/libmpv-2.dll
