@@ -116,14 +116,27 @@ endif()
 
 if(WIN32)
       
-    ExternalProject_Add(libmpv
-    URL https://github.com/mpv-player/mpv/archive/refs/tags/v0.35.0.tar.gz
+  ExternalProject_Add(libmpv
+    URL https://github.com/mpv-player/mpv/archive/v0.31.0.tar.gz
     CMAKE_ARGS -DENABLE_STATIC=1 -DENABLE_SHARED=0 -DENABLE_DOCS=0 -DENABLE_MANPAGE=0 -DENABLE_HTML_BUILD=0 -DENABLE_JACK=0 -DENABLE_PULSEAUDIO=0 -DENABLE_ALSA=0 -DENABLE_OSS=0 -DENABLE_CACA=0 -DENABLE_RPI=0 -DENABLE_VAAPI=0 -DENABLE_VDPAU=0 -DENABLE_CUDA=0 -DENABLE_OPENCL=0 -DENABLE_EGL=0 -DENABLE_GL_X11=0 -DENABLE_GL_COCOA=0 -DENABLE_GL_WIN32=0 -DENABLE_GL_WAYLAND=0 -DENABLE_GL_XCB=0 -DENABLE_GL_EGL=0 -DENABLE_GL_VULKAN=0 -DENABLE_GL_D3D11=0 -DENABLE_VAPOURSYNTH=0 -DENABLE_LAVF=0 -DENABLE_AVDEVICE=0 -DENABLE_AVFILTER=0 -DENABLE_POSTPROC=0 -DENABLE_ENCODING=0 -DENABLE_LIBASS=0 -DENABLE_ZIMG=0 -DENABLE_FREI0R=0 -DENABLE_LIBCDIO=0 -DENABLE_LIBCDIO_PARANOIA=0 -DENABLE_DVDNAV=0
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
     BUILD_COMMAND make
     INSTALL_COMMAND make install
-)
+    BUILD_ALWAYS 1
+    BINARY_DIR ${CMAKE_BINARY_DIR}/libmpv
+  )
+
+  ExternalProject_Get_Property(libmpv install_dir)
+  set(libmpv_install_dir ${install_dir})
+  message(STATUS "libmpv install dir: ${libmpv_install_dir}")
+
+  add_custom_command(
+    TARGET libmpv
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${libmpv_install_dir}/bin/mpv.com <DESTINATION_DIR>
+    COMMENT "Copying mpv.com to destination"
+  )
 
 
     ExternalProject_Add(yt_dlp
