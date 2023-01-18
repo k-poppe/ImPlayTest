@@ -36,21 +36,19 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24.0")
 endif()
 
 find_package(PkgConfig REQUIRED)
-if(WIN32 AND USE_MPV_WIN_BUILD)
-    ExternalProject_Add(mpv_dev
-        URL https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/20230107/mpv-dev-x86_64-20230107-git-33e73f4.7z
+if(WIN32)
+    ExternalProject_Add(mpv_bin
+        URL https://github.com/mpv-player/mpv/archive/v0.31.0.tar.gz
+        CMAKE_ARGS -DENABLE_STATIC=1 -DENABLE_SHARED=0 -DENABLE_DOCS=0 -DENABLE_MANPAGE=0 -DENABLE_HTML_BUILD=0 -DENABLE_JACK=0 -DENABLE_PULSEAUDIO=0 -DENABLE_ALSA=0 -DENABLE_OSS=0 -DENABLE_CACA=0 -DENABLE_RPI=0 -DENABLE_VAAPI=0 -DENABLE_VDPAU=0 -DENABLE_CUDA=0 -DENABLE_OPENCL=0 -DENABLE_EGL=0 -DENABLE_GL_X11=0 -DENABLE_GL_COCOA=0 -DENABLE_GL_WIN32=0 -DENABLE_GL_WAYLAND=0 -DENABLE_GL_XCB=0 -DENABLE_GL_EGL=0 -DENABLE_GL_VULKAN=0 -DENABLE_GL_D3D11=0 -DENABLE_VAPOURSYNTH=0 -DENABLE_LAVF=0 -DENABLE_AVDEVICE=0 -DENABLE_AVFILTER=0 -DENABLE_POSTPROC=0 -DENABLE_ENCODING=0 -DENABLE_LIBASS=0 -DENABLE_ZIMG=0 -DENABLE_FREI0R=0 -DENABLE_LIBCDIO=0 -DENABLE_LIBCDIO_PARANOIA=0 -DENABLE_DVDNAV=0 -DENABLE_HLS=1 -DENABLE_MP4=1
         UPDATE_COMMAND ""
-        CONFIGURE_COMMAND ""
-        BUILD_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/include <BINARY_DIR>/include/mpv
-              COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/libmpv.dll.a <BINARY_DIR>
-              COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/mpv-2.dll <BINARY_DIR>/libmpv-2.dll
-        INSTALL_COMMAND ""
+        CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
+        BUILD_COMMAND make
+        INSTALL_COMMAND make install
     )
-    ExternalProject_Get_property(mpv_dev BINARY_DIR)
-    set(MPV_DEV_DIR ${BINARY_DIR})
-
-    set(MPV_INCLUDE_DIRS ${MPV_DEV_DIR}/include)
-    set(MPV_LIBRARY_DIRS ${MPV_DEV_DIR})
+    ExternalProject_Get_property(mpv_bin BINARY_DIR)
+    set(MPV_BIN_DIR ${BINARY_DIR})
+    set(MPV_INCLUDE_DIRS ${MPV_BIN_DIR}/include)
+    set(MPV_LIBRARY_DIRS ${MPV_BIN_DIR}/lib)
     set(MPV_LIBRARIES mpv)
 else()
     pkg_search_module(MPV REQUIRED mpv)
@@ -115,30 +113,7 @@ if(USE_PATCHED_GLFW)
 endif()
 
 if(WIN32)
-      
-  ExternalProject_Add(mpv_bin
-    URL https://github.com/mpv-player/mpv/archive/v0.31.0.tar.gz
-    CMAKE_ARGS -DENABLE_STATIC=1 -DENABLE_SHARED=0 -DENABLE_DOCS=0 -DENABLE_MANPAGE=0 -DENABLE_HTML_BUILD=0 -DENABLE_JACK=0 -DENABLE_PULSEAUDIO=0 -DENABLE_ALSA=0 -DENABLE_OSS=0 -DENABLE_CACA=0 -DENABLE_RPI=0 -DENABLE_VAAPI=0 -DENABLE_VDPAU=0 -DENABLE_CUDA=0 -DENABLE_OPENCL=0 -DENABLE_EGL=0 -DENABLE_GL_X11=0 -DENABLE_GL_COCOA=0 -DENABLE_GL_WIN32=0 -DENABLE_GL_WAYLAND=0 -DENABLE_GL_XCB=0 -DENABLE_GL_EGL=0 -DENABLE_GL_VULKAN=0 -DENABLE_GL_D3D11=0 -DENABLE_VAPOURSYNTH=0 -DENABLE_LAVF=0 -DENABLE_AVDEVICE=0 -DENABLE_AVFILTER=0 -DENABLE_POSTPROC=0 -DENABLE_ENCODING=0 -DENABLE_LIBASS=0 -DENABLE_ZIMG=0 -DENABLE_FREI0R=0 -DENABLE_LIBCDIO=0 -DENABLE_LIBCDIO_PARANOIA=0 -DENABLE_DVDNAV=0
-    UPDATE_COMMAND ""
-    CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
-    BUILD_COMMAND make
-    INSTALL_COMMAND make install
-    BUILD_ALWAYS 1
-    BINARY_DIR ${CMAKE_BINARY_DIR}/mpv_bin
-  )
-
-  ExternalProject_Get_Property(mpv_bin install_dir)
-  set(libmpv_install_dir ${install_dir})
-  message(STATUS "mpv_bin install dir: ${libmpv_install_dir}")
-
-  add_custom_command(
-    TARGET mpv_bin
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${libmpv_install_dir}/bin/mpv.com <DESTINATION_DIR>
-    COMMENT "Copying mpv.com to destination"
-  )
-
-
+    
     ExternalProject_Add(yt_dlp
         URL https://github.com/yt-dlp/yt-dlp/releases/download/2023.01.06/yt-dlp.exe
         DOWNLOAD_NO_EXTRACT ON
